@@ -171,7 +171,7 @@ app.frame('/description', async (c) => {
       ),
       intents: [
       <TextInput placeholder="(max. 16 characters)" />,
-      <Button action="/ticker" value="back">Back</Button>,
+      <Button action="/image" value="back">Back</Button>,
       <Button action="/supply" value="next">Next</Button>
       ]
   })  
