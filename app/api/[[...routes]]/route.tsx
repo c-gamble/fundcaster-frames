@@ -27,7 +27,7 @@ const app = new Frog<{ State: State }>({
     description: "",
     initialSupply: parseInt(process.env.DEFAULT_INITIAL_SUPPLY || '1000')
   },
-  // hub: neynar({ apiKey: process.env.NEYNAR_API_KEY || '' }),
+  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY || '' }),
   assetsPath: '/',
   basePath: '/api',
 })
