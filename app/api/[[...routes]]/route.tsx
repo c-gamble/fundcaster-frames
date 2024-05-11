@@ -314,7 +314,7 @@ app.transaction('/create', async (c) => {
 
   return c.contract({
       abi: ABI,
-      chainId: `eip155:84532`,
+      chainId: `eip155:${process.env.CHAIN_ID}`,
       functionName: "CreateNewCustomToken",
       to: process.env.TOKEN_FACTORY_ADDRESS as `0x${string}`,
       args: [state.name, state.ticker, state.initialSupply * (10**18), process.env.FEE_DEPOSIT_ADDRESS]
