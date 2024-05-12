@@ -27,7 +27,7 @@ const app = new Frog<{ State: State }>({
     description: "",
     initialSupply: parseInt(process.env.DEFAULT_INITIAL_SUPPLY || '1000')
   },
-  hub: neynar({ apiKey: process.env.NEYNAR_API_KEY || '' }),
+  // hub: neynar({ apiKey: process.env.NEYNAR_API_KEY || '' }),
   assetsPath: '/',
   basePath: '/api',
 })
@@ -258,7 +258,7 @@ app.frame('/end', async (c) => {
       imageURL: "https://soft-pump-assets.s3.amazonaws.com/token.png",
       description: "",
       initialSupply: parseInt(process.env.DEFAULT_INITIAL_SUPPLY || '1000')
-      }
+    }
   });
 
   let tokenAddress = '';
@@ -267,8 +267,8 @@ app.frame('/end', async (c) => {
 
       await delay(2000)
 
-      const response = await axios.get(`https://api-sepolia.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${c.transactionId}&apikey=${process.env.BASE_SCAN_API_KEY}`)
-
+      const response = await axios.get(`https://api${process.env.CHAIN_ID == "84532" ? "-sepolia" : ""}.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${c.transactionId}&apikey=${process.env.BASE_SCAN_API_KEY}`)
+      
       tokenAddress = response.data.result.logs[0].address;
       const userAddress = response.data.result.from;
 
@@ -287,7 +287,8 @@ app.frame('/end', async (c) => {
           contractAddress: tokenAddress,
           initialSupply: state.initialSupply,
           userAddress: userAddress,
-          txHash: c.transactionId
+          txHash: c.transactionId,
+          chainId: process.env.CHAIN_ID
       });
       
       if (error) return displayError(c, "database error!");
