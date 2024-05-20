@@ -24,7 +24,8 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
 
     const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=supply`;
     const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/submit`;
-  
+    
+    console.log("STATE BEFORE PREVIEW:", updateState(body.untrustedData.state, from, inputText));
     return new NextResponse( 
         getFrameHtmlResponse({
             buttons: [
