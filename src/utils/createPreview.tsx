@@ -35,7 +35,7 @@ export const createPreview = async (state: any) => {
                     <p style={{textAlign: 'center', color: 'white', fontSize: '30px'}}>description: {state.description}</p>  
                     <p style={{textAlign: 'center', color: 'white', fontSize: '30px'}}>initial supply: {`${state.supply}`}</p>
                     
-                    <div style={{position: 'absolute', display: 'flex', bottom: '30%', right: '30%', backgroundColor: 'white', borderRadius: '50%', padding: '20px'}}>
+                    <div style={{position: 'absolute', display: 'flex', bottom: '30%', right: '20%', backgroundColor: 'white', borderRadius: '50%', padding: '20px'}}>
                         <img src={state.logo} style={{height: '100px'}} alt="token logo" />
                     </div>
                     
