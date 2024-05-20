@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "frog-dev": "frog dev",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,6 +13,7 @@
     "@coinbase/onchainkit": "^0.16.10",
     "@supabase/supabase-js": "^2.43.2",
     "axios": "^1.6.8",
+    "frog": "^0.11.2",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",

@@ -1,5 +1,5 @@
 import { encodeFunctionData, parseEther } from 'viem';
-import { FrameRequest, FrameTransactionResponse, getFrameHtmlResponse, getFrameMessage } from '@coinbase/onchainkit/frame';
+import { FrameRequest, FrameTransactionResponse } from '@coinbase/onchainkit/frame';
 import { NextRequest, NextResponse } from 'next/server';
 import { ABI } from "@/constants/abi";
 
@@ -8,11 +8,6 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     const FACTORY_ABI: any = ABI;
 
     const body: FrameRequest = await req.json();
-    const { isValid } = await getFrameMessage(body, { neynarApiKey: process.env.NEYNAR_API_KEY });
-    
-    if (!isValid) {
-        return new NextResponse('message not valid', { status: 400 });
-    }
     
     const state = JSON.parse(decodeURIComponent(body.untrustedData.state));
 
