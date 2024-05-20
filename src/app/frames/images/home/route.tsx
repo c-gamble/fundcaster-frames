@@ -1,6 +1,4 @@
-import { ImageResponse } from 'next/og'
-
-export const runtime = 'edge';
+import { ImageResponse } from 'next/og';
 
 export async function GET(request: Request) {
 

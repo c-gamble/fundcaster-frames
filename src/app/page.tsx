@@ -28,7 +28,7 @@ export default function Home() {
           <h1 className="text-white font-normal text-6xl mb-[18px]">fundcaster by SOFT</h1>
           <p className="text-white text-3xl">create your own tokens in frames</p>
         </div>
-        <div className="w-[50%] flex items-center justify-start flex-col h-[50%] overflow-scroll">
+        <div className={`w-[50%] flex items-center ${loading ? "justify-center" : "justify-start"} flex-col h-[50%] overflow-scroll`}>
           {loading ? <p className="text-white">loading...</p> : tokens.map((token: any) => (
             <div key={token.id} className="text-[#17101F] flex justify-between items-center bg-white rounded-md shadow-lg w-[80%] mt-10 p-6">
               <div className="h-full flex-col justify-center">
