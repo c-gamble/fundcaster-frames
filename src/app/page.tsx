@@ -19,7 +19,7 @@ export default function Home() {
       setTokens(response.data);
       setLoading(false);
     });
-  }, [window.innerWidth]);
+  }, []);
 
   return (
     size.width > 800 ? (
