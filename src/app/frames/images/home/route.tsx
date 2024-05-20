@@ -38,26 +38,12 @@ export async function GET(request: Request) {
             {
                 fonts: fonts,
                 width: 1200,
-                height: 630,
-                headers: {
-                    'Content-Type': 'image/*'
-                }
+                height: 630
             },
         )
         
     } catch (e: any) {
         console.log(e);
-        return new ImageResponse(
-            (
-                <div style={{display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center'}}>
-                    <h1>Something went wrong</h1>
-                    <p>{e.message}</p>
-                </div>
-            ),
-            {
-                width: 1200,
-                height: 630
-            }
-        )
+        return new Response(e.message, { status: 500 });
     }
 };
