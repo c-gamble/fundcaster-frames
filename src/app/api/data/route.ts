@@ -18,10 +18,14 @@ const updateState = (currState: any, field: string, inputText: string) => {
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
     
-  try {
-    console.log("REQUEST:", req);
-    const body: FrameRequest = await req.json();
-    const { inputText } = body.untrustedData;  
+    let body: any = null;
+    try {
+      body = await req.json();
+    } catch (e) {
+      console.log('inputtext empty');
+    }
+    
+    const { inputText } = body ? body.untrustedData : { inputText: null };
     const field = req.nextUrl.searchParams.get('field') || '';
     const from = req.nextUrl.searchParams.get('from') || '';
     
@@ -49,12 +53,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             },
             state: (inputText && inputText.length > 0) ? updateState(body.untrustedData.state, from, inputText) : JSON.parse(decodeURIComponent(body.untrustedData.state)),
         })
-    )
-  } catch (e: any) {
-    console.log(e);
-    return new NextResponse(e.message, { status: 500 });
-  }
-        
+    )      
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
