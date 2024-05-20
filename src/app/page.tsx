@@ -11,6 +11,7 @@ export default function Home() {
 
   useEffect(() => {
 
+    setLoading(true);
     axios.get('/api/home').then((response) => {
       // sort response.data by created_at (most recent first)
       response.data.sort((a: any, b: any) => {

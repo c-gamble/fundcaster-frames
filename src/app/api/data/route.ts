@@ -7,6 +7,8 @@ const updateState = (currState: any, field: string, inputText: string) => {
   var sanitizedInputText = inputText;
   if (field == "ticker") sanitizedInputText = sanitizedInputText.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
   else if (field == "name" || field == "description") sanitizedInputText = inputText.replace(/[^a-zA-Z0-9\s]/g, '');
+  else if (field == "logo") sanitizedInputText = inputText;
+  else if (field == "supply") sanitizedInputText = parseInt(inputText.replace(/[^0-9]/g, ''), 10).toString();
   else sanitizedInputText = sanitizedInputText.replace(/[^a-zA-Z0-9]/g, '');
   
   const state = JSON.parse(decodeURIComponent(currState));
