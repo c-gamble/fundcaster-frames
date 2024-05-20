@@ -44,6 +44,17 @@ export async function GET(request: Request) {
         
     } catch (e: any) {
         console.log(e);
-        return new Response(e);
+        return new ImageResponse(
+            (
+                <div style={{display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center'}}>
+                    <h1>Something went wrong</h1>
+                    <p>{e.message}</p>
+                </div>
+            ),
+            {
+                width: 1200,
+                height: 630
+            }
+        )
     }
 };
