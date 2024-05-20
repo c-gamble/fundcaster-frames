@@ -26,11 +26,8 @@ const frameMetdata = getFrameMetadata({
     }
 });
 
-type Props = {
-    params: { field: string };
-};
-
-export const generateMetadata = ({ params }: Props): Metadata => {
+export const generateMetadata = (): Metadata => {
+    console.log("metadata", frameMetdata)
     return {
       title: `home page`,
       description: 'first page of fundcaster',
