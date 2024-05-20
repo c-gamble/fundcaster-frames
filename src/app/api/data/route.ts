@@ -18,6 +18,7 @@ const updateState = (currState: any, field: string, inputText: string) => {
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
     
+  try {
     const body: FrameRequest = await req.json();
     const { inputText } = body.untrustedData;  
     const field = req.nextUrl.searchParams.get('field') || '';
@@ -48,9 +49,15 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             state: (inputText && inputText.length > 0) ? updateState(body.untrustedData.state, from, inputText) : JSON.parse(decodeURIComponent(body.untrustedData.state)),
         })
     )
+  } catch (e: any) {
+    console.log(e);
+    return new NextResponse(e.message, { status: 500 });
+  }
         
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
     return getResponse(req);
 }
+
+export const dynamic = 'force-dynamic';
