@@ -19,6 +19,7 @@ const updateState = (currState: any, field: string, inputText: string) => {
 async function getResponse(req: NextRequest): Promise<NextResponse> {
     
   try {
+    console.log("REQUEST:", req);
     const body: FrameRequest = await req.json();
     const { inputText } = body.untrustedData;  
     const field = req.nextUrl.searchParams.get('field') || '';
