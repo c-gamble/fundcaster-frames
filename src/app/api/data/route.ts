@@ -23,9 +23,10 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
       body = await req.json();
     } catch (e) {
       console.log('inputtext empty');
+      body = null;
     }
     
-    const { inputText } = body ? body.untrustedData : { inputText: null };
+    const { inputText } = body != null ? body.untrustedData : { inputText: null };
     const field = req.nextUrl.searchParams.get('field') || '';
     const from = req.nextUrl.searchParams.get('from') || '';
     
