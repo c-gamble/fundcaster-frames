@@ -1,6 +1,5 @@
 import { ImageResponse } from 'next/og';
 import { createClient } from '@supabase/supabase-js';
-import { useEffect } from 'react';
 
 export const runtime = 'edge';
 
@@ -97,6 +96,7 @@ export async function GET(request: Request) {
         )
         
     } catch (e: any) {
+        console.log(e);
         return new Response(e.message, { status: 500 });
     }
 };

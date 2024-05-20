@@ -1,4 +1,6 @@
-import { ImageResponse } from 'next/og';
+import { ImageResponse } from 'next/og'
+
+export const runtime = 'edge';
 
 export async function GET(request: Request) {
 
@@ -41,6 +43,7 @@ export async function GET(request: Request) {
         )
         
     } catch (e: any) {
+        console.log(e);
         return new Response(e.message, { status: 500 });
     }
 };

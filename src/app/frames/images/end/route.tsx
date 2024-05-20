@@ -47,6 +47,7 @@ export async function GET(request: Request) {
         )
         
     } catch (e: any) {
+        console.log(e);
         return new Response(e.message, { status: 500 });
     }
 };

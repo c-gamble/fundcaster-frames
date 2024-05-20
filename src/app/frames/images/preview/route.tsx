@@ -29,6 +29,7 @@ export async function GET(request: Request) {
         return createPreview(JSON.parse(decodeURIComponent(searchParams.get('state') || '')));
         
     } catch (e: any) {
+        console.log(e);
         return new Response(e.message, { status: 500 });
     }
 };

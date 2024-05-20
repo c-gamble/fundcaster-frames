@@ -49,6 +49,7 @@ const handleRequest = async (request: Request) => {
         )
         
     } catch (e: any) {
+        console.log(e);
         return new Response(e.message, { status: 500 });
     }
 };
