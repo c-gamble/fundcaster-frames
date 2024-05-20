@@ -13,7 +13,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/home');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_SITE_URL}/api/home`);
         const sortedData = response.data.sort((a: { created_at: string }, b: { created_at: string }) => {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
