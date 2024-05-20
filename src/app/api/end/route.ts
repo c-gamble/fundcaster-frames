@@ -17,7 +17,7 @@ const generateResponse = (state: any, success: boolean, contractAddress: string)
               {
                   label: 'Restart',
                   action: 'post',
-                  target: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/home`,
+                  target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/restart`,
               },
               {
                 label: "BaseScan",

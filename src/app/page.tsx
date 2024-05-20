@@ -3,23 +3,29 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import useWindowSize from '@/hooks/useWindowSize';
-export default function Home() {
 
+export default function Home() {
   const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const size = useWindowSize();
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/home');
+        const sortedData = response.data.sort((a: { created_at: string }, b: { created_at: string }) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        setTokens(sortedData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
 
-    setLoading(true);
-    axios.get('/api/home').then((response) => {
-      // sort response.data by created_at (most recent first)
-      response.data.sort((a: any, b: any) => {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      });
-      setTokens(response.data);
-      setLoading(false);
-    });
+    fetchData();
   }, []);
 
   return (
