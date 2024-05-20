@@ -17,17 +17,17 @@ const frameMetdata = getFrameMetadata({
     image: {
         src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/home`,
     },
-    state: {
-      name: process.env.DEFAULT_TOKEN_NAME,
-      ticker: process.env.DEFAULT_TOKEN_TICKER,
-      logo: process.env.DEFAULT_TOKEN_LOGO,
-      description: process.env.DEFAULT_TOKEN_DESCRIPTION,
-      supply: process.env.DEFAULT_INITIAL_SUPPLY,
-    }
+    // state: {
+    //   name: process.env.DEFAULT_TOKEN_NAME,
+    //   ticker: process.env.DEFAULT_TOKEN_TICKER,
+    //   logo: process.env.DEFAULT_TOKEN_LOGO,
+    //   description: process.env.DEFAULT_TOKEN_DESCRIPTION,
+    //   supply: process.env.DEFAULT_INITIAL_SUPPLY,
+    // }
 });
 
 export const generateMetadata = (): Metadata => {
-    console.log("metadata", frameMetdata)
+    
     return {
       title: `home page`,
       description: 'first page of fundcaster',
