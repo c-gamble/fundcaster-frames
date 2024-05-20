@@ -38,8 +38,11 @@ export async function GET(request: Request) {
             {
                 fonts: fonts,
                 width: 1200,
-                height: 630
-            }
+                height: 630,
+                headers: {
+                    'Content-Type': 'image/*'
+                }
+            },
         )
         
     } catch (e: any) {
