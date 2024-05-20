@@ -26,6 +26,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
     }
     
     const { inputText } = body.untrustedData;
+    console.log("state", body.untrustedData.state)
     const field = req.nextUrl.searchParams.get('field') || '';
     const from = req.nextUrl.searchParams.get('from') || '';
     
