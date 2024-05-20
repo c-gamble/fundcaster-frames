@@ -18,15 +18,14 @@ const updateState = (currState: any, field: string, inputText: string) => {
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
     
-    let body: any = null;
-    try {
+    let body;
+    if (!req.body) {
+      console.log(req)
+    } else {
       body = await req.json();
-    } catch (e) {
-      console.log('inputtext empty');
-      body = null;
     }
     
-    const { inputText } = body != null ? body.untrustedData : { inputText: null };
+    const { inputText } = body.untrustedData;
     const field = req.nextUrl.searchParams.get('field') || '';
     const from = req.nextUrl.searchParams.get('from') || '';
     
