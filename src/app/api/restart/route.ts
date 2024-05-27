@@ -3,13 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
 
-    return new NextResponse( 
+    return new NextResponse(
         getFrameHtmlResponse({
             buttons: [
                 {
                     label: 'Learn More',
                     action: 'link',
-                    target: "https://www.thesoftdao.com/"
+                    target: "https://warpcast.com/thesoftdao/0x6499dc93"
                 },
                 {
                     label: 'Begin →',
@@ -22,11 +22,11 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             }
         })
     )
-        
+
 }
 
 export async function POST(req: NextRequest): Promise<Response> {
     return getResponse(req);
 }
-  
+
 export const dynamic = 'force-dynamic';

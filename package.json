@@ -13,13 +13,17 @@
     "@coinbase/onchainkit": "^0.16.10",
     "@supabase/supabase-js": "^2.43.2",
     "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
+    "crypto": "^1.0.1",
     "frog": "^0.11.2",
     "next": "14.2.3",
     "react": "^18",
     "react-dom": "^18",
+    "thirdweb": "^5.24.0",
     "viem": "^2.10.9"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

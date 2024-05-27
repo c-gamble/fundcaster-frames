@@ -1,29 +1,33 @@
 import { encodeFunctionData, parseEther } from 'viem';
 import { FrameRequest, FrameTransactionResponse } from '@coinbase/onchainkit/frame';
 import { NextRequest, NextResponse } from 'next/server';
-import { ABI } from "@/constants/factoryABI";
+import { ABI } from "@/constants/tokenABI";
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
 
-    const FACTORY_ABI: any = ABI;
+    const TOKEN_ABI: any = ABI;
+
+    const contractAddress = req.nextUrl.searchParams.get('contractAddress') || '';
 
     const body: FrameRequest = await req.json();
+    const untrustedData: any = body.untrustedData;
 
-    const state = JSON.parse(decodeURIComponent(body.untrustedData.state));
+    const amount = BigInt(untrustedData.inputText.toString()) * BigInt(10 ** 18);
+    const userAddress = untrustedData.address;
 
     const data = encodeFunctionData({
-        abi: FACTORY_ABI,
-        functionName: 'CreateNewCustomToken',
-        args: [state.name, state.ticker, BigInt(state.supply.toString()) * BigInt(10 ** 18), process.env.FEE_DEPOSIT_ADDRESS]
+        abi: TOKEN_ABI,
+        functionName: 'transfer',
+        args: [userAddress, amount]
     });
 
     const txData: FrameTransactionResponse = {
         chainId: `eip155:${process.env.CHAIN_ID}`,
         method: 'eth_sendTransaction',
         params: {
-            abi: FACTORY_ABI,
+            abi: TOKEN_ABI,
             data,
-            to: process.env.TOKEN_FACTORY_ADDRESS as `0x${string}`,
+            to: contractAddress as `0x${string}`,
             value: parseEther('0').toString()
         }
     }

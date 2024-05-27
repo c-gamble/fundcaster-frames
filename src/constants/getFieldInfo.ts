@@ -16,13 +16,28 @@ export default function getFieldInfo(field: string) {
         return { prevURL, nextURL, placeholder, title, subtitle };
     } else if (field == "logo") {
         const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=ticker&from=logo`;
-        const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=description&from=logo`;
+        const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientStart&from=logo`;
         const placeholder = "paste URL here (max. 100KB)";
         const title = "pick a logo";
         const subtitle = "or click 'Next' to use the default image";
         return { prevURL, nextURL, placeholder, title, subtitle };
-    } else if (field == "description") {
-        const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=logo&from=description`;
+    } else if (field == "gradientStart") {
+        const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=logo&from=gradientStart`;
+        const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientEnd&from=gradientStart`;
+        const placeholder = "enter a hex color code";
+        const title = "choose a color";
+        const subtitle = "optionally add branding with a gradient";
+        return { prevURL, nextURL, placeholder, title, subtitle };
+    } else if (field == "gradientEnd") {
+        const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientStart&from=gradientEnd`;
+        const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=description&from=gradientEnd`;
+        const placeholder = "enter a hex color code";
+        const title = "choose another color";
+        const subtitle = "optionally add branding with a gradient";
+        return { prevURL, nextURL, placeholder, title, subtitle };
+    }
+    else if (field == "description") {
+        const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientEnd&from=description`;
         const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=supply&from=description`;
         const placeholder = "type the description here";
         const title = "describe your token";

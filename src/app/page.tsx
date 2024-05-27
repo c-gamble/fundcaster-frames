@@ -46,7 +46,15 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </div>      
+        <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
+          <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+        </div>
+        <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
+          <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
+          <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
+          <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+        </div>
+      </div>
     ) : (
       <div className="h-screen w-screen bg-gradient-linear flex justify-center items-center">
         <div className="w-[50%] flex flex-col justify-center pl-[40px]">
@@ -61,8 +69,16 @@ export default function Home() {
             </div>
           ))}
         </div>
+        <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
+          <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+        </div>
+        <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
+          <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
+          <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
+          <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+        </div>
       </div>
     )
 
   )
-  }
+}
