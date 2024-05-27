@@ -168,7 +168,7 @@ export default function Page({ params }: { params: { contractAddress: string } }
                             <h1 className="text-[40px]">configure an airdrop for <span className="font-bold">{token.tokenTicker}</span></h1>
                             {/* button to copy token address w/ styling */}
                             <h1 className="mt-4 mb-2">upload a .csv of wallets and allocations or choose from the default settings</h1>
-                            <h1 className="mb-8 text-xs">if you upload a .csv, the first column must be "address" and the second must be "allocation"</h1>
+                            <h1 className="mb-8 text-xs">if you upload a .csv, the first column must be &quot;address&quot; and the second must be &quot;allocation&quot;</h1>
                             <div className="w-full flex items-start justify-center">
                                 <div className="w-[40%] flex flex-col items-center justify-center border-2 border-white p-4 rounded-md">
                                     <h1 className="text-lg mb-2 font-bold">upload a .csv</h1>
@@ -243,7 +243,7 @@ export default function Page({ params }: { params: { contractAddress: string } }
                                                 checked={followers == 'soft'}
                                                 onChange={() => setFollowers('soft')}
                                             />
-                                            <label htmlFor="softFollowers" className="ml-2 mr-2">reward SOFT's followers</label>
+                                            <label htmlFor="softFollowers" className="ml-2 mr-2">reward SOFT&apos;s followers</label>
                                         </div>
                                     </div>
                                     {
