@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
-
 ## Debugger
 
 To locally develop in Frames, you will need a debugger. There are three primary options, of which the best (for our use case) is the Frames.js debugger. To install, run 
