@@ -1,22 +1,37 @@
-import { createClient } from '@supabase/supabase-js';
+import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit/frame';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: Request) {
 
-    const url = new URL(request.url);
-    const contractAddress = url.searchParams.get('contractAddress') || '';
 
-    const supabaseURL = process.env.SUPABASE_URL || '';
-    const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-    const supabase = createClient(supabaseURL, supabaseAnonKey);
+async function getResponse(req: NextRequest): Promise<NextResponse> {
 
-    const { data, error } = await supabase.from('tokens').select('*').eq('contractAddress', contractAddress);
-    if (error || !data || data.length == 0) {
-        return new Response('Not found', { status: 404 });
-    } else {
-        return new Response(JSON.stringify(data[0]), {
-            headers: {
-                'content-type': 'application/json',
+    const body: FrameRequest = await req.json();
+    const state = JSON.parse(decodeURIComponent(body.untrustedData.state));
+    return new NextResponse(
+        getFrameHtmlResponse({
+            buttons: [
+                {
+                    label: 'Start Sale 💰',
+                    action: 'post',
+                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/saleData?field=price`
+                },
+                {
+                    label: 'Open Airdrop',
+                    action: 'link',
+                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/airdrop/${state.contractAddress}`
+                },
+            ],
+            image: {
+                src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/launch?gradientStart=${state.gradientStart}&gradientEnd=${state.gradientEnd}&ticker=${state.ticker}&passphrase=${state.passphrase}`,
             },
-        });
-    }
+            state: state
+        })
+    )
+
 }
+
+export async function POST(req: NextRequest): Promise<Response> {
+    return getResponse(req);
+}
+
+export const dynamic = 'force-dynamic';

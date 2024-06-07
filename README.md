@@ -1,36 +1,23 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## Debugger
 
-First, run the development server:
-
+To locally develop in Frames, you will need a debugger. There are three primary options, of which the best (for our use case) is the Frames.js debugger. To install, run 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install -g @frames.js/debugger
+```
+Once installed, you can launch the debugger by running 
+```bash
+frames
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Launching the Application
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+After cloning this repository, you must install all necessary dependencies by running
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Once dependencies are installed, you can run ```npm run dev``` to start the application locally on port 3000. To access the application, navigate to the Frames.js debugger (usually available at ```http://localhost:3010```) and enter the url ```http://localhost:3000/frames/home```. This is the landing page for the frames application.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+If you wish to work on the web app, navigate to ```http://localhost:3000/``` in your browser.

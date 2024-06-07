@@ -1,46 +1,76 @@
 import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit/frame';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 import axios from 'axios';
-import crypto from 'crypto';
-import bcrypt from 'bcrypt';
+import { NOUNS } from './constants/nouns';
+import { ADJECTIVES } from './constants/adjectives';
+import { getTextColor } from '@/utils/textColor';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 const generateResponse = (state: any, success: boolean, contractAddress: string, passphrase: string) => {
-    return new NextResponse(
-        getFrameHtmlResponse({
-            buttons: [
-                {
-                    label: `Launch ${state.ticker}`,
-                    action: 'link',
-                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/launch/${contractAddress}`,
+
+    if (success) {
+        return new NextResponse(
+            getFrameHtmlResponse({
+                buttons: [
+                    {
+                        label: 'Home',
+                        action: 'post',
+                        target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/restart`,
+                    },                              
+                    {
+                        label: `Launch `,
+                        action: 'post',
+                        target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/launch`,
+                    },
+                    {
+                        label: "View On-Chain",
+                        action: "link",
+                        target: `https://basescan.org/token/${contractAddress}`
+                    }
+                ],
+                image: {
+                    src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/end?contractAddress=${contractAddress}&gradientStart=${state.gradientStart}&gradientEnd=${state.gradientEnd}`
                 },
-                {
-                    label: 'Restart',
-                    action: 'post',
-                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/restart`,
-                },
-                {
-                    label: "View on Chain",
-                    action: "link",
-                    target: `https://basescan.org/token/${contractAddress}`
+                state: {
+                    ...state,
+                    contractAddress: contractAddress,
+                    passphrase: passphrase
                 }
-            ],
-            image: {
-                src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/end?success=${success}&contractAddress=${contractAddress}&gradientStart=${state.gradientStart}&gradientEnd=${state.gradientEnd}&passphrase=${passphrase}`
-            },
-            state: {
-                name: process.env.DEFAULT_TOKEN_NAME,
-                ticker: process.env.DEFAULT_TOKEN_TICKER,
-                logo: process.env.DEFAULT_TOKEN_LOGO,
-                gradientStart: process.env.DEFAULT_GRADIENT_START,
-                gradientEnd: process.env.DEFAULT_GRADIENT_END,
-                description: process.env.DEFAULT_TOKEN_DESCRIPTION,
-                supply: process.env.DEFAULT_INITIAL_SUPPLY,
-            }
-        })
-    )
+            })
+        )
+    } else {
+        return new NextResponse(
+            getFrameHtmlResponse({
+                buttons: [
+                    {
+                        label: 'Restart',
+                        action: 'post',
+                        target: `${process.env.NEXT_PUBLIC_SITE_URL}/api/restart`,
+                    },
+                    {
+                        label: 'Contact SOFT',
+                        action: 'link',
+                        target: `https://warpcast.com/thesoftdao`,
+                    }                         
+                ],
+                image: {
+                    src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/errors/creationError`
+                },
+                state: {
+                    name: process.env.DEFAULT_TOKEN_NAME,
+                    ticker: process.env.DEFAULT_TOKEN_TICKER,
+                    logo: process.env.DEFAULT_TOKEN_LOGO,
+                    gradientStart: process.env.DEFAULT_GRADIENT_START,
+                    gradientEnd: process.env.DEFAULT_GRADIENT_END,
+                    description: process.env.DEFAULT_TOKEN_DESCRIPTION,
+                    supply: process.env.DEFAULT_INITIAL_SUPPLY,                    
+                }                
+            })
+        )
+    }
+
 }
 
 async function getResponse(req: NextRequest): Promise<NextResponse> {
@@ -57,42 +87,59 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
         await delay(3000);
 
         const response = await axios.get(`https://api${process.env.CHAIN_ID == "84532" ? "-sepolia" : ""}.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${transactionId}&apikey=${process.env.BASE_SCAN_API_KEY}`)
-        console.log(response)
         contractAddress = response.data.result.logs[0].address;
         const userAddress = response.data.result.from;
 
-        const supabaseURL = process.env.SUPABASE_URL || '';
-        const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-        const supabase = createClient(supabaseURL, supabaseAnonKey);
+        const dbClient = new MongoClient(process.env.MONGO_URI || '',  {
+                serverApi: {
+                    version: ServerApiVersion.v1,
+                    strict: true,
+                    deprecationErrors: true,
+                }
+            }
+        );
 
-        const existingToken = await supabase.from('tokens').select('contractAddress').eq('contractAddress', contractAddress);
-        if (existingToken.data && existingToken.data.length > 0) {
+        await dbClient.connect();
+        const tokensDb = dbClient.db(process.env.MONGO_DB_NAME).collection('tokens');
+        let result: any = await tokensDb.find({ contractAddress: contractAddress }).toArray();
+        if (result && result.length > 0) {
             success = false;
             return generateResponse(state, success, contractAddress, "");
         }
 
-        const passphrase = crypto.randomBytes(5).toString('hex');
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(passphrase, salt);
+        let selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+        let selectedAdjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+        let passphrase = `${selectedAdjective} ${selectedNoun}`;
 
 
-        const { data, error } = await supabase.from('tokens').insert({
+        result = await tokensDb.find({ passphrase: passphrase }).toArray(); 
+        if (result && result.length > 0) {
+            while (result.map((token: any) => token.passphrase).includes(passphrase)) {
+                selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+                selectedAdjective = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+                passphrase = `${selectedAdjective} ${selectedNoun}`;
+            }
+        }
+
+        result = await tokensDb.insertOne({
             tokenName: state.name,
             tokenTicker: state.ticker,
             imageURL: state.logo,
             gradientStart: state.gradientStart,
             gradientEnd: state.gradientEnd,
+            textColor: getTextColor(state.gradientStart, state.gradientEnd),
             description: state.description,
             contractAddress: contractAddress,
             initialSupply: state.supply,
             userAddress: userAddress,
             txHash: transactionId,
             chainId: process.env.CHAIN_ID,
-            authHash: hashedPassword
+            passphrase: passphrase
         });
 
-        if (error) {
-            console.log(error);
+        await dbClient.close();
+        
+        if (!result.insertedId) {
             success = false;
             return generateResponse(state, success, contractAddress, "");
         } else {

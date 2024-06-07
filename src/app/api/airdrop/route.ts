@@ -1,6 +1,32 @@
-import { createClient } from '@supabase/supabase-js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 import { ABI } from '@/constants/tokenABI';
 
+export async function GET(request: Request) {
+
+    const url = new URL(request.url);
+    const contractAddress = url.searchParams.get('contractAddress') || '';
+
+    const dbClient = new MongoClient(process.env.MONGO_URI || '',  {
+            serverApi: {
+                version: ServerApiVersion.v1,
+                strict: true,
+                deprecationErrors: true,
+            }
+        }
+    );
+
+    await dbClient.connect();
+    const tokensDb = dbClient.db(process.env.MONGO_DB_NAME).collection('tokens');
+
+    const result = await tokensDb.find({ contractAddress: contractAddress }).toArray();
+    await dbClient.close();
+
+    if (!result || result.length === 0) {
+        return new Response('Not found', { status: 404 });
+    }
+
+    return new Response(JSON.stringify(result[0]), { status: 200 });
+}
 
 export async function POST(req: Request) {
 
@@ -20,9 +46,18 @@ export async function POST(req: Request) {
     //         warpcastUsername
     //     } = body;
 
-    //     const supabaseURL = process.env.SUPABASE_URL || '';
-    //     const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-    //     const supabase = createClient(supabaseURL, supabaseAnonKey);
+        // const dbClient = new MongoClient(process.env.MONGO_URI || '',  {
+        //         serverApi: {
+        //             version: ServerApiVersion.v1,
+        //             strict: true,
+        //             deprecationErrors: true,
+        //         }
+        //     }
+        // );
+
+        // await dbClient.connect();
+        // // write query
+        // await dbClient.close();
 
     //     let walletAllocations: any = {};
     //     if (customNow || customDelay) {

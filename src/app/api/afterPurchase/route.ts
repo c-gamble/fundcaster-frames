@@ -1,6 +1,6 @@
 import { FrameRequest, getFrameHtmlResponse } from '@coinbase/onchainkit/frame';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -11,7 +11,7 @@ const generateResponse = (token: any, success: boolean, transactionId: string) =
                 {
                     label: `← Back to ${token.tokenTicker}`,
                     action: 'post',
-                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/launch/${token.contractAddress}`,
+                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/announce/${token.contractAddress}`,
                 },
                 transactionId !== '' ? {
                     label: "View Transaction",
@@ -50,11 +50,22 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
             return generateResponse({}, false, '');
         }
 
-        const supabaseURL = process.env.SUPABASE_URL || '';
-        const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-        const supabase = createClient(supabaseURL, supabaseAnonKey);
+        const dbClient = new MongoClient(process.env.MONGO_URI || '',  {
+                serverApi: {
+                    version: ServerApiVersion.v1,
+                    strict: true,
+                    deprecationErrors: true,
+                }
+            }
+        );
 
-        const { data, error } = await supabase.from('tokens').select('*').eq('contractAddress', state.contractAddress);
+        await dbClient.connect();
+        
+        // const { data, error } = await supabase.from('tokens').select('*').eq('contractAddress', state.contractAddress);
+        
+        await dbClient.close();
+
+        
 
         if (error || !data) {
             return generateResponse({}, false, '');

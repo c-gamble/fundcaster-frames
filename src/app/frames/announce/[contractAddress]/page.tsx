@@ -16,7 +16,7 @@ const generateFrameMetadata = (contractAddress: string) => {
       },
     ],
     image: {
-      src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/launch?contractAddress=${contractAddress}`,
+      src: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/announce?contractAddress=${contractAddress}`,
     },
   });
   return frameMetdata;
@@ -33,7 +33,7 @@ export const generateMetadata = ({ params }: Props): Metadata => {
     openGraph: {
       title: `launch page`,
       description: 'launch your token here',
-      images: [`${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/launch?contractAddress=${params.contractAddress}`],
+      images: [`${process.env.NEXT_PUBLIC_SITE_URL}/frames/images/announce?contractAddress=${params.contractAddress}`],
     },
     other: {
       ...generateFrameMetadata(params.contractAddress),

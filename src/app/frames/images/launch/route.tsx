@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@supabase/supabase-js';
+import Image from 'next/image';
+import { getTextColor } from '@/utils/textColor';
 
 export const runtime = 'edge';
 
@@ -26,66 +27,24 @@ export async function GET(request: Request) {
             }
         ]
 
-
         const url = new URL(request.url);
-        const contractAddress = url.searchParams.get('contractAddress') || '';
-
-        const supabaseURL = process.env.SUPABASE_URL || '';
-        const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-        const supabase = createClient(supabaseURL, supabaseAnonKey);
-
-        const { data, error } = await supabase.from('tokens').select('*').eq('contractAddress', contractAddress);
-
-        if (error || !data || data.length == 0) {
-            console.log(error, data);
-            return new ImageResponse(
-                (
-                    <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', backgroundImage: 'linear-gradient(to right, #014bad, #17101F)' }}>
-                        <h1 style={{ color: 'white', fontSize: '60px', margin: '0px', fontWeight: 700 }}>token not found</h1>
-                        <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '20px' }}>
-                            <p style={{ color: 'white', fontSize: '20px', margin: '0px' }}>created with fundcaster by SOFT</p>
-                        </div>
-                    </div>
-                )
-            );
-        }
-
-
-        const token = data[0];
+        const gradientStart = url.searchParams.get('gradientStart') || '014bad';
+        const gradientEnd = url.searchParams.get('gradientEnd') || '17101F';
+        const ticker = url.searchParams.get('ticker') || '';
+        const passphrase = url.searchParams.get('passphrase') || '';
+        const textColor = getTextColor(gradientStart, gradientEnd);
 
         return new ImageResponse(
             (
-                <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', backgroundImage: `linear-gradient(to right, #${token.gradientStart}, #${token.gradientEnd})` }}>
-                    <div style={{ display: 'flex', height: '20%', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', paddingTop: '30px' }}>
-                        <h1 style={{ color: 'white', fontSize: '60px', margin: '0px', fontWeight: 700 }}>token launch</h1>
-                    </div>
-
-                    <div style={{ display: 'flex', height: '80%', width: '100%', paddingLeft: '60px', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-
-                        <div style={{ display: 'flex', width: '100%', flexDirection: 'column', alignItems: 'flex-start', height: '100%', justifyContent: 'space-around' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ textAlign: 'center', color: 'white', fontSize: '26px', margin: '0px', marginBottom: '10px' }}>name</p>
-                                <h1 style={{ textAlign: 'center', fontSize: '40px', margin: '0px', color: 'white', fontWeight: 700 }}>{token.tokenName}</h1>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ textAlign: 'center', color: 'white', fontSize: '26px', margin: '0px', marginBottom: '10px' }}>ticker</p>
-                                <h1 style={{ textAlign: 'center', fontSize: '40px', margin: '0px', color: 'white' }}>{token.tokenTicker}</h1>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                <p style={{ textAlign: 'center', color: 'white', fontSize: '26px', margin: '0px', marginBottom: '10px' }}>description</p>
-                                <h1 style={{ textAlign: 'center', fontSize: '40px', margin: '0px', color: 'white' }}>{token.description.length > 35 ? `${token.description.substring(0, 35)}...` : token.description}</h1>
-                            </div>
+                <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'flex-start', paddingLeft: '60px', justifyContent: 'center', flexDirection: 'column', backgroundImage: `linear-gradient(to right, #${gradientStart}, #${gradientEnd})`, color: textColor }}>
+                    <h1 style={{ textAlign: 'center', fontSize: '80px', margin: '0px' }}>ready to launch {ticker}?</h1>
+                    <p style={{ textAlign: 'center', fontSize: '30px' }}>start a sale or open an airdrop now</p>      
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', flexDirection: 'column', marginTop: '30px' }}>
+                            <h2 style={{ textAlign: 'center', fontSize: '30px', margin: '0px', fontWeight: '700' }}>store your passphrase to use SOFT&#39;s tooling:</h2>
+                            <p style={{ textAlign: 'center', fontSize: '30px', fontWeight: '700' }}>{passphrase}</p>
                         </div>
-
-                        <div style={{ position: 'absolute', display: 'flex', bottom: '30%', right: '10%', backgroundColor: 'white', borderRadius: '50%', padding: '40px' }}>
-                            <img src={token.imageURL} style={{ height: '200px' }} alt="token logo" />
-                        </div>
-
-                    </div>
-                    <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '20px' }}>
-                        <p style={{ color: 'white', fontSize: '20px', margin: '0px' }}>created with fundcaster by SOFT</p>
+                    <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
+                        <Image src={"https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png"} height={50} width={50} alt="SOFT logo" />
                     </div>
                 </div>
             ),

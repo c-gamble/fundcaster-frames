@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og';
+import { getTextColor } from './textColor';
 
 export const runtime = 'edge';
 
@@ -27,16 +28,16 @@ export const createPreview = async (state: any) => {
 
         return new ImageResponse(
             (
-                <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'flex-start', paddingLeft: '60px', justifyContent: 'center', flexDirection: 'column', backgroundImage: `linear-gradient(to right, #${state.gradientStart}, #${state.gradientEnd})` }}>
+                <div style={{ display: 'flex', height: '100vh', width: '100vw', alignItems: 'flex-start', paddingLeft: '60px', justifyContent: 'center', flexDirection: 'column', backgroundImage: `linear-gradient(to right, #${state.gradientStart}, #${state.gradientEnd})`, color: getTextColor(state.gradientStart, state.gradientEnd) }}>
 
-                    <h1 style={{ textAlign: 'center', fontSize: '80px', margin: '0px', color: 'white' }}>review details</h1>
-                    <p style={{ textAlign: 'center', color: 'white', fontSize: '30px' }}>name: {state.name}</p>
-                    <p style={{ textAlign: 'center', color: 'white', fontSize: '30px' }}>ticker: {state.ticker}</p>
-                    <p style={{ textAlign: 'center', color: 'white', fontSize: '30px' }}>description: {state.description.length > 30 ? `${state.description.substring(0, 30)}...` : state.description}</p>
-                    <p style={{ textAlign: 'center', color: 'white', fontSize: '30px' }}>initial supply: {`${state.supply.toLocaleString()}`}</p>
+                    <h1 style={{ textAlign: 'center', fontSize: '80px', margin: '0px' }}>review details</h1>
+                    <p style={{ textAlign: 'center', fontSize: '30px' }}>name: {state.name}</p>
+                    <p style={{ textAlign: 'center', fontSize: '30px' }}>ticker: {state.ticker}</p>
+                    <p style={{ textAlign: 'center', fontSize: '30px' }}>description: {state.description.length > 30 ? `${state.description.substring(0, 30)}...` : state.description}</p>
+                    <p style={{ textAlign: 'center', fontSize: '30px' }}>initial supply: {`${BigInt(state.supply).toLocaleString()}`}</p>
 
                     <div style={{ position: 'absolute', display: 'flex', bottom: '30%', right: '20%', backgroundColor: 'white', borderRadius: '50%', padding: '20px' }}>
-                        <img src={state.logo} style={{ height: '100px' }} alt="token logo" />
+                        {state.logo && <img src={state.logo} style={{ height: '100px' }} alt="token logo" />}
                     </div>
 
                     <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>

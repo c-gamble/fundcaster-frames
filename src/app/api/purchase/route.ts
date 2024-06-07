@@ -11,7 +11,7 @@ async function getResponse(req: NextRequest): Promise<NextResponse> {
                 {
                     label: '← Back',
                     action: 'post',
-                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/launch/${contractAddress}`,
+                    target: `${process.env.NEXT_PUBLIC_SITE_URL}/frames/announce/${contractAddress}`,
                 },
                 {
                     label: 'Confirm',

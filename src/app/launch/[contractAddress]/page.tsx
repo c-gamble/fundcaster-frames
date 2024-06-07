@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import axios from 'axios';
 
 export default function Page({ params }: { params: { contractAddress: string } }) {
@@ -31,7 +32,7 @@ export default function Page({ params }: { params: { contractAddress: string } }
     }, [isAuthenticated]);
 
     const handleCopy = async () => {
-        await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_SITE_URL}/frames/launch/${token.contractAddress}`);
+        await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_SITE_URL}/frames/announce/${token.contractAddress}`);
         alert('copied to clipboard!');
     }
 
@@ -68,17 +69,25 @@ export default function Page({ params }: { params: { contractAddress: string } }
                     <div className={`h-screen w-screen bg-white p-20 flex flex-col items-center justify-center`}>
                         <h1 className="text-white text-xl">loading...</h1>
                         <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
-                            <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+                            <a href="https://www.thesoftdao.com/" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" height={50} width={50} alt="SOFT logo" />
+                            </a>
                         </div>
                         <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
-                            <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                            <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                            <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+                            <a href="https://warpcast.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" height={25} width={25} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                            </a>
+                            <a href="https://twitter.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image src="https://soft-pump-assets.s3.amazonaws.com/x.png" height={23} width={23} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                            </a>
+                            <a href="https://discord.com/invite/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <Image src="https://soft-pump-assets.s3.amazonaws.com/discord.png" height={23} width={23} alt="SOFT logo" />
+                            </a>
                         </div>
                     </div>
                 ) : (
                     token ? (
-                        <div style={{ background: `linear-gradient(to right, #${token.gradientStart}, #${token.gradientEnd})` }} className="h-screen w-screen p-20 flex flex-col justify-center items-center text-white">
+                        <div style={{ background: `linear-gradient(to right, #${token.gradientStart}, #${token.gradientEnd})`, color: token.textColor }} className="h-screen w-screen p-20 flex flex-col justify-center items-center">
                             <h1 className="text-[40px]">congratulations on creating <span className="font-bold">{token.tokenTicker}</span> with fundcaster!</h1>
                             {/* button to copy token address w/ styling */}
                             <h1 className="mt-4 mb-10">to launch your token, copy the frame URL below and cast to your feed</h1>
@@ -90,24 +99,40 @@ export default function Page({ params }: { params: { contractAddress: string } }
                                 <button style={{ color: `#${token.gradientStart}` }} onClick={() => window.open(`${process.env.NEXT_PUBLIC_SITE_URL}/airdrop/${token.contractAddress}`)} className="bg-white font-bold ml-4 p-2 rounded-md">start an airdrop</button>
                             </div>
                             <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
-                                <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+                                <a href="https://www.thesoftdao.com/" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" height={50} width={50} alt="SOFT logo" />
+                                </a>
                             </div>
                             <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
-                                <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                                <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                                <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+                                <a href="https://warpcast.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" height={25} width={25} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                                </a>
+                                <a href="https://twitter.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/x.png" height={23} width={23} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                                </a>
+                                <a href="https://discord.com/invite/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/discord.png" height={23} width={23} alt="SOFT logo" />
+                                </a>
                             </div>
                         </div>
                     ) : (
                         <div className="h-screen w-screen bg-gradient-linear p-20 flex flex-col justify-center items-center">
                             <h1 className="text-white text-xl">token not found :(</h1>
                             <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
-                                <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+                                <a href="https://www.thesoftdao.com/" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" height={50} width={50} alt="SOFT logo" />
+                                </a>
                             </div>
                             <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
-                                <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                                <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                                <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+                                <a href="https://warpcast.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" height={25} width={25} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                                </a>
+                                <a href="https://twitter.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/x.png" height={23} width={23} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                                </a>
+                                <a href="https://discord.com/invite/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                    <Image src="https://soft-pump-assets.s3.amazonaws.com/discord.png" height={23} width={23} alt="SOFT logo" />
+                                </a>
                             </div>
                         </div>
                     )
@@ -119,15 +144,25 @@ export default function Page({ params }: { params: { contractAddress: string } }
                     <input placeholder="enter your passphrase" className="bg-white text-black p-2 rounded-md mt-2 w-[20%]" type="password" value={passphrase} onChange={(e) => setPassphrase(e.target.value)} />
                     <button style={{ color: '#17101F' }} className="bg-white font-bold p-2 rounded-md mt-4" onClick={handleAuthentication}>authenticate</button>
                     <div style={{ position: 'absolute', display: 'flex', bottom: '0', left: '0', padding: '10px' }}>
-                        <a href="https://www.thesoftdao.com/" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" style={{ height: '50px' }} alt="SOFT logo" /></a>
+                        <a href="https://www.thesoftdao.com/" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Image src="https://soft-pump-assets.s3.amazonaws.com/bg-blue_fg-white-removebg-preview.png" height={50} width={50} alt="SOFT logo" />
+                        </a>
                     </div>
                     <div style={{ position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px' }}>
-                        <a href="https://warpcast.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" style={{ height: '25px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                        <a href="https://twitter.com/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/x.png" style={{ height: '23px', marginRight: '20px' }} alt="SOFT logo" /></a>
-                        <a href="https://discord.com/invite/thesoftdao" target="_blank"><img src="https://soft-pump-assets.s3.amazonaws.com/discord.png" style={{ height: '23px' }} alt="SOFT logo" /></a>
+                        <a href="https://warpcast.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Image src="https://soft-pump-assets.s3.amazonaws.com/warpcast.png" height={25} width={25} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                        </a>
+                        <a href="https://twitter.com/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Image src="https://soft-pump-assets.s3.amazonaws.com/x.png" height={23} width={23} alt="SOFT logo" style={{ marginRight: '20px' }} />
+                        </a>
+                        <a href="https://discord.com/invite/thesoftdao" target="_blank" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <Image src="https://soft-pump-assets.s3.amazonaws.com/discord.png" height={23} width={23} alt="SOFT logo" />
+                        </a>
                     </div>
                 </div>
             )}
         </>
     );
 }
+
+

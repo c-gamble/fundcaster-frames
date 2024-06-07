@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
-import getFieldInfo from "@/constants/getFieldInfo";
+import getSaleFieldInfo from "@/constants/getSaleFieldInfo";
+import { getTextColor } from '@/utils/textColor';
 
 export const runtime = 'edge';
 
@@ -28,12 +29,15 @@ const handleRequest = async (request: Request) => {
         
         const { searchParams } = new URL(request.url)
         const field: string = searchParams.get('field') || "";
+        const gradientStart = searchParams.get('gradientStart') || '014bad';
+        const gradientEnd = searchParams.get('gradientEnd') || '17101F';
+        const textColor = getTextColor(gradientStart, gradientEnd);
 
-        const { title, subtitle } = getFieldInfo(field);
+        const { title, subtitle } = getSaleFieldInfo(field);
 
         return new ImageResponse(
             (
-                <div style={{display: 'flex', height: '100vh', width: '100vw', alignItems: 'flex-start', paddingLeft: '60px', justifyContent: 'center', flexDirection: 'column', backgroundImage: 'url(https://soft-pump-assets.s3.amazonaws.com/background.jpg)'}}>
+                <div style={{display: 'flex', height: '100vh', width: '100vw', alignItems: 'flex-start', paddingLeft: '60px', justifyContent: 'center', flexDirection: 'column', backgroundImage: `linear-gradient(to right, #${gradientStart}, #${gradientEnd})`, color: textColor }}>
                     <h1 style={{textAlign: 'center', fontSize: '80px', margin: '0px', color: 'white'}}>{title}</h1>
                     <p style={{textAlign: 'center', color: 'white', fontSize: '30px'}}>{subtitle}</p>
                     <div style={{position: 'absolute', display: 'flex', bottom: '0', right: '0', padding: '10px'}}>

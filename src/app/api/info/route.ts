@@ -1,12 +1,26 @@
-import { createClient } from '@supabase/supabase-js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 export async function POST(request: Request) {
 
     const body = await request.json();
-    const { supabaseURL, supabaseAnonKey } = body;
-    const supabase = createClient(supabaseURL, supabaseAnonKey);
+    const { mongoURI } = body;
 
+    const dbClient = new MongoClient(mongoURI|| '',  {
+            serverApi: {
+                version: ServerApiVersion.v1,
+                strict: true,
+                deprecationErrors: true,
+            }
+        }
+    );
+
+    await dbClient.connect();
+    
     const { data, error } = await supabase.from('tokens').select('*');
+    
+    await dbClient.close();
+
+    
 
     if (error || !data) {
         console.log(error, data);

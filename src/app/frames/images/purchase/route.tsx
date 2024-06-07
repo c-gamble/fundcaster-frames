@@ -1,5 +1,5 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@supabase/supabase-js';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
 export const runtime = 'edge';
 
@@ -30,11 +30,21 @@ export async function GET(request: Request) {
         const url = new URL(request.url);
         const contractAddress = url.searchParams.get('contractAddress') || '';
 
-        const supabaseURL = process.env.SUPABASE_URL || '';
-        const supabaseAnonKey = process.env.SUPABASE_SECRET_KEY || '';
-        const supabase = createClient(supabaseURL, supabaseAnonKey);
+        const dbClient = new MongoClient(process.env.MONGO_URI || '',  {
+                serverApi: {
+                    version: ServerApiVersion.v1,
+                    strict: true,
+                    deprecationErrors: true,
+                }
+            }
+        );
 
+        await dbClient.connect();
+        
         const { data, error } = await supabase.from('tokens').select('*').eq('contractAddress', contractAddress);
+
+        await dbClient.close();
+
         if (error || !data || data.length == 0) {
             console.log(error, data);
             return new ImageResponse(

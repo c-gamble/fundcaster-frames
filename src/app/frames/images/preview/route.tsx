@@ -25,7 +25,7 @@ export async function GET(request: Request) {
         }
         ]
 
-        const { searchParams } = new URL(request.url)
+        const { searchParams } = new URL(request.url);
         return createPreview(JSON.parse(decodeURIComponent(searchParams.get('state') || '')));
         
     } catch (e: any) {

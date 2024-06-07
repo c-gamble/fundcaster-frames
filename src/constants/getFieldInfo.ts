@@ -25,14 +25,14 @@ export default function getFieldInfo(field: string) {
         const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=logo&from=gradientStart`;
         const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientEnd&from=gradientStart`;
         const placeholder = "enter a hex color code";
-        const title = "choose a color";
+        const title = "choose a primary color";
         const subtitle = "optionally add branding with a gradient";
         return { prevURL, nextURL, placeholder, title, subtitle };
     } else if (field == "gradientEnd") {
         const prevURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=gradientStart&from=gradientEnd`;
         const nextURL = `${process.env.NEXT_PUBLIC_SITE_URL}/api/data?field=description&from=gradientEnd`;
         const placeholder = "enter a hex color code";
-        const title = "choose another color";
+        const title = "choose a secondary color";
         const subtitle = "optionally add branding with a gradient";
         return { prevURL, nextURL, placeholder, title, subtitle };
     }

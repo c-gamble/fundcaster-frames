@@ -15,9 +15,11 @@ const updateState = (currState: any, field: string, inputText: string) => {
       sanitizedInputText = process.env.DEFAULT_TOKEN_LOGO || "";
     }
   } else if (field == "gradientStart") {
+    inputText = inputText.replace("#", "");
     sanitizedInputText = inputText.replace(/[^a-fA-F0-9]/g, '');
     if (sanitizedInputText.length != 6) sanitizedInputText = process.env.DEFAULT_GRADIENT_START || "000000";
   } else if (field == "gradientEnd") {
+    inputText = inputText.replace("#", "");
     sanitizedInputText = inputText.replace(/[^a-fA-F0-9]/g, '');
     if (sanitizedInputText.length != 6) sanitizedInputText = process.env.DEFAULT_GRADIENT_END || "000000";
   } else if (field == "supply") sanitizedInputText = parseInt(inputText.replace(/[^0-9]/g, ''), 10).toString();
