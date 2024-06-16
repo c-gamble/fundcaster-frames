@@ -56,23 +56,26 @@ const app = new Frog<{ State: State }>({
     height: 630,
     fonts: [
       {
-        name: 'Montserrat',
+        name: "Montserrat",
         weight: 400,
-        source: 'google',
+        source: "google",
       },
       {
-        name: 'Montserrat',
+        name: "Montserrat",
         weight: 700,
-        source: 'google'
-      }
-    ]
+        source: "google",
+      },
+    ],
   },
 });
+
+const jsxExpression = <></>;
 
 const TextCard = (props: {
   ui: ReturnType<typeof getUI>;
   title: string;
   description: string;
+  addendum?: typeof jsxExpression;
 }) => {
   const { Box, Heading, Text } = props.ui;
 
@@ -92,6 +95,7 @@ const TextCard = (props: {
         <Text color="text200" size="20">
           {props.description}
         </Text>
+        {props.addendum}
       </Box>
 
       <Box grow alignVertical="bottom" alignHorizontal="right">
@@ -174,7 +178,7 @@ app.frame("/begin", (c) => {
 
   const state = c.deriveState((s) => {
     if (c.buttonValue === "restart") {
-      s.tokenCapture = initialState.tokenCapture
+      s.tokenCapture = initialState.tokenCapture;
     } else if (c.buttonValue === "goBack") {
       s.tokenCapture.stepIndex--;
     } else if (c.buttonValue === "proceed") {
@@ -223,7 +227,6 @@ app.frame("/preview", (c) => {
 });
 
 app.transaction("/submit", (c) => {
-  console.log(c.previousState);
   const {
     name = process.env.DEFAULT_TOKEN_NAME || "Default Token Name",
     symbol = process.env.DEFAULT_TOKEN_TICKER || "Default token ticker",
@@ -304,9 +307,13 @@ app.frame("/end", async (c) => {
         }
       }
 
+      const name = s.tokenCapture.fields.name || process.env.DEFAULT_TOKEN_NAME || "Default Token Name"
+      const ticker = s.tokenCapture.fields.symbol || process.env.DEFAULT_TOKEN_TICKER || "DEFAULTTOKENTICKER"
+      const totalSupply = s.tokenCapture.fields.totalSupply || process.env.DEFAULT_INITIAL_SUPPLY || "1000000000";
+
       const details = {
-        tokenName: s.tokenCapture.fields.name,
-        tokenTicker: s.tokenCapture.fields.symbol,
+        tokenName: name,
+        tokenTicker: ticker,
         imageURL: s.tokenCapture.fields.logo,
         gradientStart: s.tokenCapture.fields.primaryColor,
         gradientEnd: s.tokenCapture.fields.secondaryColor,
@@ -316,7 +323,7 @@ app.frame("/end", async (c) => {
         ),
         description: s.tokenCapture.fields.description,
         contractAddress: contractAddress,
-        initialSupply: s.tokenCapture.fields.totalSupply,
+        initialSupply: totalSupply,
         userAddress: userAddress,
         txHash: c.transactionId,
         chainId: process.env.CHAIN_ID,
@@ -362,6 +369,7 @@ app.frame("/end", async (c) => {
     }),
     intents: [
       <Button action="/">Home</Button>,
+      <Button action="/launch">Launch</Button>,
       <Button.Link
         href={`https://basescan.org/token/${state.latestToken.address}`}
       >
@@ -371,7 +379,54 @@ app.frame("/end", async (c) => {
   });
 });
 
-const somethingWentWrong = (c: FrameContext<{State: State}>) => {
+app.frame("/launch", async (c) => {
+  const ui = getUI();
+  const { Box, Heading, Text } = ui;
+
+  if (c.previousState.latestToken === undefined) {
+    return somethingWentWrong(c);
+  }
+
+  const dbClient = new MongoClient(process.env.MONGO_URI || "", {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+
+  await dbClient.connect();
+  const tokensDb = dbClient.db(process.env.MONGO_DB_NAME).collection("tokens");
+  let token: any = await tokensDb.findOne({
+    contractAddress: c.previousState.latestToken.address,
+  });
+
+  return c.res({
+    image: TextCard({
+      ui,
+      title: `Ready to launch ${token.ticker}?`,
+      description: "start a sale or open an airdrop now",
+      addendum: (
+        <Box flexDirection="column" gap="4" grow paddingTop="32">
+          <Heading size="24">
+            store your passphrase to use SOFT’s tooling:
+          </Heading>
+          <Text weight="700">{token.passphrase}</Text>
+        </Box>
+      ),
+    }),
+    intents: [
+      <Button action="/beginSale">Start Sale 💰</Button>,
+      <Button.Link
+        href={`${process.env.NEXT_PUBLIC_SITE_URL}/airdrop/${c.previousState.latestToken.address}`}
+      >
+        Open Airdrop
+      </Button.Link>,
+    ],
+  });
+});
+
+const somethingWentWrong = (c: FrameContext<{ State: State }>) => {
   const ui = getUI();
 
   return c.res({
