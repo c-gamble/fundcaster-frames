@@ -54,6 +54,18 @@ const app = new Frog<{ State: State }>({
   imageOptions: {
     width: 1200,
     height: 630,
+    fonts: [
+      {
+        name: 'Montserrat',
+        weight: 400,
+        source: 'google',
+      },
+      {
+        name: 'Montserrat',
+        weight: 700,
+        source: 'google'
+      }
+    ]
   },
 });
 
@@ -69,6 +81,7 @@ const TextCard = (props: {
       grow
       alignHorizontal="left"
       backgroundColor="background"
+      backgroundImage="url(https://soft-pump-assets.s3.amazonaws.com/background.jpg)"
       padding="32"
       justifyContent="space-between"
       flexDirection="row"
