@@ -10,8 +10,11 @@ import { ABI as FACTORY_ABI } from "@/constants/factoryABI";
 import { NOUNS } from "../../end/constants/nouns";
 import { ADJECTIVES } from "../../end/constants/adjectives";
 import { getTextColor } from "@/utils/textColor";
+import FlatPriceSaleFactory_v_2_1 from "@/constants/FlatPriceSaleFactory_v_2_1.json";
 
 const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+const jsxExpression = <></>;
 
 type State = {
   tokenCapture: {
@@ -24,6 +27,18 @@ type State = {
       secondaryColor: string;
       description: string;
       totalSupply: string;
+    };
+  };
+  saleCapture: {
+    stepIndex: number;
+    fields: {
+      saleMax: string;
+      userMax: string;
+      minPurchase: string;
+      openIn: string;
+      duration: string;
+      maxQueue: string;
+      uri: string;
     };
   };
   latestToken?: {
@@ -42,6 +57,18 @@ const initialState: State = {
       secondaryColor: "",
       description: "",
       totalSupply: "",
+    },
+  },
+  saleCapture: {
+    stepIndex: 0,
+    fields: {
+      saleMax: "",
+      userMax: "",
+      minPurchase: "",
+      openIn: "",
+      duration: "",
+      maxQueue: "",
+      uri: "",
     },
   },
   latestToken: undefined,
@@ -68,8 +95,6 @@ const app = new Frog<{ State: State }>({
     ],
   },
 });
-
-const jsxExpression = <></>;
 
 const TextCard = (props: {
   ui: ReturnType<typeof getUI>;
@@ -248,6 +273,59 @@ app.transaction("/submit", (c) => {
   });
 });
 
+app.transaction("/submitSale", async (c) => {
+  if (c.previousState.latestToken === undefined) {
+    throw new Error("cannot submit sale without a token");
+  }
+
+  const response = await axios.get(
+    `https://api${
+      process.env.CHAIN_ID == "84532" ? "-sepolia" : ""
+    }.basescan.org/api?module=contract&action=getcontractcreation&contractaddresses=${
+      c.previousState.latestToken.address
+    }&apikey=${process.env.BASE_SCAN_API_KEY}`
+  );
+  const userAddress = response.data.result[0].contractCreator;
+
+  // TODO: pull token details from mongo
+
+  const args = [
+    userAddress,
+    [
+      "0xC4BFc1Ad6dbB85191867a6E0f9dA2EA1668B5a6F", // TODO: this should be a treasury
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
+      // new Uint8Array([ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ]),
+      BigInt(1000000000) * BigInt(10 ** 18), // TODO: use c.previousState.saleCapture.fields
+      BigInt(1000000000) * BigInt(10 ** 18),
+      BigInt(0),
+      Math.floor(Date.now() / 1000),
+      Math.floor(Date.now() / 1000) + 86400,
+      0,
+      "this should be a uri",
+    ],
+    "USD",
+    true,
+    // TODO: parameterize this by network
+    "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1", // pulled from https://docs.chain.link/data-feeds/price-feeds/addresses?network=base&page=1
+    [
+      // TODO: parameterize this by network
+      "0x036cbd53842c5426634e7929541ec2318f3dcf7e", // pulled from https://developers.circle.com/stablecoins/docs/usdc-on-test-networks
+    ],
+    // TODO: parameterize this by network
+    ["0xd30e2101a97dcbAeBCBC04F14C3f624E67A35165"],
+    [18],
+  ];
+
+  return c.contract({
+    abi: FlatPriceSaleFactory_v_2_1.abi,
+    functionName: "newSale",
+    args,
+    chainId: `eip155:${process.env.CHAIN_ID}` as "eip155:1",
+    to: process.env.FLAT_PRICE_SALE_FACTORY_ADDRESS as `0x${string}`,
+    value: parseEther("0"),
+  });
+});
+
 app.frame("/end", async (c) => {
   const ui = getUI();
 
@@ -307,9 +385,18 @@ app.frame("/end", async (c) => {
         }
       }
 
-      const name = s.tokenCapture.fields.name || process.env.DEFAULT_TOKEN_NAME || "Default Token Name"
-      const ticker = s.tokenCapture.fields.symbol || process.env.DEFAULT_TOKEN_TICKER || "DEFAULTTOKENTICKER"
-      const totalSupply = s.tokenCapture.fields.totalSupply || process.env.DEFAULT_INITIAL_SUPPLY || "1000000000";
+      const name =
+        s.tokenCapture.fields.name ||
+        process.env.DEFAULT_TOKEN_NAME ||
+        "Default Token Name";
+      const ticker =
+        s.tokenCapture.fields.symbol ||
+        process.env.DEFAULT_TOKEN_TICKER ||
+        "DEFAULTTOKENTICKER";
+      const totalSupply =
+        s.tokenCapture.fields.totalSupply ||
+        process.env.DEFAULT_INITIAL_SUPPLY ||
+        "1000000000";
 
       const details = {
         tokenName: name,
@@ -425,6 +512,119 @@ app.frame("/launch", async (c) => {
     ],
   });
 });
+
+const saleSteps = [
+  {
+    field: "saleMax",
+    inputPlaceholder: "enter the amount in USD",
+    title: "max. sale amount",
+    description: "cannot exceed your total supply times your price",
+  },
+  {
+    field: "userMax",
+    inputPlaceholder: "enter the amount in USD",
+    title: "max. amount per user",
+    description: "cannot exceed your total supply times your price",
+  },
+  {
+    field: "purchaseMin",
+    inputPlaceholder: "enter the amount in USD",
+    title: "min. purchase amount",
+    description: "leave blank for no minimum",
+  },
+  {
+    field: "openIn",
+    inputPlaceholder: "leave blank for immediate sale",
+    title: "set sale open time",
+    description: "choose a number of hours from now",
+  },
+  {
+    field: "duration",
+    inputPlaceholder: "enter a number of hours",
+    title: "how long is the sale?",
+    description: "choose a total duration in hours",
+  },
+  {
+    field: "maxQueue",
+    inputPlaceholder: "leave blank for no limit",
+    title: "max. queue time",
+    description: "choose a max queue per user time in hours",
+  },
+  {
+    field: "infoURL",
+    inputPlaceholder: "leave blank for no link",
+    title: "is there more?",
+    description: "enter a URL with more information",
+  },
+];
+
+app.frame("/beginSale", (c) => {
+  const ui = getUI();
+
+  const state = c.deriveState((s) => {
+    if (c.buttonValue === "restart") {
+      s.saleCapture = initialState.saleCapture;
+    } else if (c.buttonValue === "goBack") {
+      s.saleCapture.stepIndex--;
+    } else if (c.buttonValue === "proceed") {
+      const prevStep = saleSteps[s.saleCapture.stepIndex];
+      if (prevStep) {
+        const field = prevStep.field as keyof State["saleCapture"]["fields"];
+        const { inputText } = c;
+        if (inputText !== undefined && field !== undefined) {
+          s.saleCapture.fields[field] = inputText;
+        }
+      }
+      s.saleCapture.stepIndex++;
+    }
+  });
+  const { stepIndex } = state.saleCapture;
+  const step = saleSteps[stepIndex];
+
+  const isFinalStep = stepIndex === saleSteps.length - 1;
+
+  return c.res({
+    action: "/beginSale",
+    image: TextCard({ ui, title: step.title, description: step.description }),
+    intents: [
+      <TextInput placeholder={step.inputPlaceholder} />,
+      stepIndex > 0 && <Button value="goBack">← Back</Button>,
+      isFinalStep ? (
+        <Button action="/salePreview">Preview</Button>
+      ) : (
+        <Button value="proceed">Next →</Button>
+      ),
+    ],
+  });
+});
+
+app.frame("/salePreview", (c) => {
+  const ui = getUI();
+
+  return c.res({
+    action: "/viewSale",
+    image: TextCard({
+      ui,
+      title: "Review sale details",
+      description: JSON.stringify(c.previousState.saleCapture.fields, null, 2), // TODO: include sale details
+    }),
+    intents: [
+      <Button.Transaction target="/submitSale">Submit</Button.Transaction>,
+    ],
+  });
+});
+
+app.frame("/viewSale", (c) => {
+  const ui = getUI()
+
+  return c.res({
+    image: TextCard({
+      ui,
+      title: "Your sale is live!",
+      description: `${c.transactionId}`
+    })
+  })
+})
 
 const somethingWentWrong = (c: FrameContext<{ State: State }>) => {
   const ui = getUI();
