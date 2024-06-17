@@ -617,6 +617,11 @@ app.frame("/salePreview", (c) => {
 app.frame("/viewSale", (c) => {
   const ui = getUI()
 
+  // TODO: get user's address for storage purposes
+  // TODO: pull sale owner address from transaction ID
+  // TODO: check if the address of the owner matches the owner of the latest token
+  // TODO: store transactionId & sale contract address with upsert
+
   return c.res({
     image: TextCard({
       ui,
