@@ -117,9 +117,11 @@ const TextCard = (props: {
     >
       <Box flexDirection="column" gap="4" grow>
         <Heading>{props.title}</Heading>
-        <Text color="text200" size="20">
-          {props.description}
-        </Text>
+        {props.description && (
+          <Text color="text200" size="20">
+            {props.description}
+          </Text>
+        )}
         {props.addendum}
       </Box>
 
