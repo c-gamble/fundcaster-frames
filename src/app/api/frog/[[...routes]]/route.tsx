@@ -491,7 +491,7 @@ app.frame("/launch", async (c) => {
   return c.res({
     image: TextCard({
       ui,
-      title: `Ready to launch ${token.ticker}?`,
+      title: `Ready to launch ${token.tokenTicker}?`,
       description: "start a sale or open an airdrop now",
       addendum: (
         <Box flexDirection="column" gap="4" grow paddingTop="32">
