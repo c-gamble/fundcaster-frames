@@ -640,6 +640,35 @@ app.frame("/viewSale", async (c) => {
   // TODO: check if the address of the owner matches the owner of the latest token
   // TODO: store transactionId & sale contract address with upsert
 
+  const dbClient = new MongoClient(process.env.MONGO_URI || "", {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+  await dbClient.connect();
+  const salesDb = dbClient.db(process.env.MONGO_DB_NAME).collection("sales");
+  let result: any = await salesDb
+    .find({ contractAddress: truncatedAddress })
+    .toArray();
+
+  // should we do this or just do an upsert? because the user could
+  // reload the page when on the /viewSale route and we should at
+  // least make this route non-destructive
+  if (result && result.length > 0) {
+    throw new Error(
+      `contract already registered: ${truncatedAddress} chain=${process.env.CHAIN_ID}`
+    );
+  }
+
+  await salesDb.insertOne({
+    contractAddress: truncatedAddress,
+    chainId: process.env.CHAIN_ID,
+    transactionId: c.transactionId,
+    saleCapture: c.previousState.saleCapture,
+  });
+
   return c.res({
     image: TextCard({
       ui,
@@ -648,8 +677,12 @@ app.frame("/viewSale", async (c) => {
       addendum: (
         <>
           <Box flexDirection="column" gap="4" grow paddingTop="32">
-            <Text size="12" wrap="balance">transaction hash: {c.transactionId}</Text>
-            <Text size="12" wrap="balance">address: {truncatedAddress}</Text>
+            <Text size="12" wrap="balance">
+              transaction hash: {c.transactionId}
+            </Text>
+            <Text size="12" wrap="balance">
+              address: {truncatedAddress}
+            </Text>
           </Box>
         </>
       ),
