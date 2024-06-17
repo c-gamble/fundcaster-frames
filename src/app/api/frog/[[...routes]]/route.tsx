@@ -619,10 +619,23 @@ app.frame("/salePreview", (c) => {
   });
 });
 
-app.frame("/viewSale", (c) => {
-  const ui = getUI()
+app.frame("/viewSale", async (c) => {
+  const ui = getUI();
+  const { Box, Text } = ui;
 
-  // TODO: get user's address for storage purposes
+  const response = await axios.get(
+    `https://api${
+      process.env.CHAIN_ID == "84532" ? "-sepolia" : ""
+    }.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${
+      c.transactionId
+    }&apikey=${process.env.BASE_SCAN_API_KEY}`
+  );
+
+  const [saleEvent] = response.data.result.logs;
+  const [, , saleAddress] = saleEvent.topics;
+  console.log(saleAddress);
+  const truncatedAddress = `0x${saleAddress.slice(26)}`;
+
   // TODO: pull sale owner address from transaction ID
   // TODO: check if the address of the owner matches the owner of the latest token
   // TODO: store transactionId & sale contract address with upsert
@@ -631,10 +644,32 @@ app.frame("/viewSale", (c) => {
     image: TextCard({
       ui,
       title: "Your sale is live!",
-      description: `${c.transactionId}`
-    })
-  })
-})
+      description: "",
+      addendum: (
+        <>
+          <Box flexDirection="column" gap="4" grow paddingTop="32">
+            <Text size="12" wrap="balance">transaction hash: {c.transactionId}</Text>
+            <Text size="12" wrap="balance">address: {truncatedAddress}</Text>
+          </Box>
+        </>
+      ),
+    }),
+    intents: [
+      <Button.Link
+        href={`${process.env.NEXT_PUBLIC_SITE_URL}/announce/${truncatedAddress}`}
+      >
+        Open Announcement Portal
+      </Button.Link>,
+      <Button.Link
+        href={`https://${
+          process.env.CHAIN_ID == "84532" ? "sepolia." : ""
+        }basescan.org/address/${truncatedAddress}`}
+      >
+        View On-Chain
+      </Button.Link>,
+    ],
+  });
+});
 
 const somethingWentWrong = (c: FrameContext<{ State: State }>) => {
   const ui = getUI();
