@@ -457,8 +457,11 @@ app.frame("/end", async (c) => {
     intents: [
       <Button action="/">Home</Button>,
       <Button action="/launch">Launch</Button>,
+      // TODO: dynamically configure ether scan URL based on chain
       <Button.Link
-        href={`https://basescan.org/token/${state.latestToken.address}`}
+        href={`https://${
+          process.env.CHAIN_ID == "84532" ? "sepolia." : ""
+        }.org/token/${state.latestToken.address}`}
       >
         View On-Chain
       </Button.Link>,
