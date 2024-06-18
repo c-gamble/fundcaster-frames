@@ -664,9 +664,9 @@ app.frame("/viewSale", async (c) => {
   }
 
   await salesDb.insertOne({
-    contractAddress: truncatedAddress,
+    contractAddress: truncatedAddress.toLowerCase(),
     chainId: process.env.CHAIN_ID,
-    transactionId: c.transactionId,
+    transactionId: c.transactionId?.toLowerCase(),
     saleCapture: c.previousState.saleCapture,
   });
 
