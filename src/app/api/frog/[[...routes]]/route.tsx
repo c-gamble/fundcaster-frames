@@ -703,6 +703,54 @@ app.frame("/viewSale", async (c) => {
   }
 });
 
+app.frame("/sales/:contractAddress/purchase", async (c) => {
+  const ui = getUI();
+
+  const contractAddress = c.req.param("contractAddress");
+
+  if (process.env.MONGO_URI === undefined) {
+    throw new Error("missing MONGO_URI");
+  }
+
+  const dbClient = new MongoClient(process.env.MONGO_URI, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+
+  await dbClient.connect();
+
+  try {
+    const salesDb = dbClient.db(process.env.MONGO_DB_NAME).collection("sales");
+    let result: any = await salesDb.findOne({
+      contractAddress: contractAddress,
+    });
+
+    return c.res({
+      image: TextCard({
+        ui,
+        title: `Purchase from this sale!`,
+        description: "This seller is holding a sale",
+        // TODO: include sale details like opening time, closing time
+      }),
+      intents: [
+        <Button.Link href={result.saleCapture.fields.uri}>
+          More Info
+        </Button.Link>,
+        <Button>Proceed</Button>,
+        // TODO: implement multi-step process
+        // TODO: have the user decide payment method in step 2
+        // <Button value="buyWithUSDC">Buy with USDC</Button>,
+        // <Button value="buyWithNative">Buy with Base ETH</Button>,
+      ],
+    });
+  } finally {
+    await dbClient.close();
+  }
+});
+
 const somethingWentWrong = (c: FrameContext<{ State: State }>) => {
   const ui = getUI();
 
