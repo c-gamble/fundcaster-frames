@@ -332,143 +332,140 @@ app.frame("/end", async (c) => {
   const ui = getUI();
 
   let state: State;
+  let dbClient: MongoClient | undefined;
 
   try {
-    state = await c.deriveState(async (s) => {
-      let contractAddress = "";
+    try {
+      state = await c.deriveState(async (s) => {
+        let contractAddress = "";
 
-      await delay(3000);
+        await delay(3000);
 
-      const response = await axios.get(
-        `https://api${
-          process.env.CHAIN_ID == "84532" ? "-sepolia" : ""
-        }.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${
-          c.transactionId
-        }&apikey=${process.env.BASE_SCAN_API_KEY}`
-      );
-      contractAddress = response.data.result.logs[0].address;
-      const userAddress = response.data.result.from;
-
-      const dbClient = new MongoClient(process.env.MONGO_URI || "", {
-        serverApi: {
-          version: ServerApiVersion.v1,
-          strict: true,
-          deprecationErrors: true,
-        },
-      });
-
-      await dbClient.connect();
-      const tokensDb = dbClient
-        .db(process.env.MONGO_DB_NAME)
-        .collection("tokens");
-      let result: any = await tokensDb
-        .find({ contractAddress: contractAddress })
-        .toArray();
-      if (result && result.length > 0) {
-        throw new Error(
-          `contract already registered: ${contractAddress} chain=${process.env.CHAIN_ID}`
+        const response = await axios.get(
+          `https://api${
+            process.env.CHAIN_ID == "84532" ? "-sepolia" : ""
+          }.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=${
+            c.transactionId
+          }&apikey=${process.env.BASE_SCAN_API_KEY}`
         );
-      }
+        contractAddress = response.data.result.logs[0].address;
+        const userAddress = response.data.result.from;
 
-      let selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-      let selectedAdjective =
-        ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-      let passphrase = `${selectedAdjective} ${selectedNoun}`;
-
-      result = await tokensDb.find({ passphrase: passphrase }).toArray();
-      if (result && result.length > 0) {
-        while (
-          result.map((token: any) => token.passphrase).includes(passphrase)
-        ) {
-          selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
-          selectedAdjective =
-            ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
-          passphrase = `${selectedAdjective} ${selectedNoun}`;
+        if (process.env.MONGO_URI === undefined) {
+          throw new Error("missing MONGO_URI");
         }
-      }
 
-      const name =
-        s.tokenCapture.fields.name ||
-        process.env.DEFAULT_TOKEN_NAME ||
-        "Default Token Name";
-      const ticker =
-        s.tokenCapture.fields.symbol ||
-        process.env.DEFAULT_TOKEN_TICKER ||
-        "DEFAULTTOKENTICKER";
-      const totalSupply =
-        s.tokenCapture.fields.totalSupply ||
-        process.env.DEFAULT_INITIAL_SUPPLY ||
-        "1000000000";
+        dbClient = new MongoClient(process.env.MONGO_URI, {
+          serverApi: {
+            version: ServerApiVersion.v1,
+            strict: true,
+            deprecationErrors: true,
+          },
+        });
 
-      const details = {
-        tokenName: name,
-        tokenTicker: ticker,
-        imageURL: s.tokenCapture.fields.logo,
-        gradientStart: s.tokenCapture.fields.primaryColor,
-        gradientEnd: s.tokenCapture.fields.secondaryColor,
-        textColor: getTextColor(
-          s.tokenCapture.fields.primaryColor,
-          s.tokenCapture.fields.secondaryColor
-        ),
-        description: s.tokenCapture.fields.description,
-        contractAddress: contractAddress,
-        initialSupply: totalSupply,
-        userAddress: userAddress,
-        txHash: c.transactionId,
-        chainId: process.env.CHAIN_ID,
-        passphrase: passphrase,
-      };
-      result = await tokensDb.insertOne(details);
+        await dbClient.connect();
+        const tokensDb = dbClient
+          .db(process.env.MONGO_DB_NAME)
+          .collection("tokens");
+        let result: any = await tokensDb
+          .findOne({ contractAddress: contractAddress });
 
-      await dbClient.close();
+        if (result == null) {
+          let selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+          let selectedAdjective =
+            ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+          let passphrase = `${selectedAdjective} ${selectedNoun}`;
 
-      if (!result.insertedId) {
-        console.error("row details", details);
-        throw new Error(`failed to insert row for contract ${contractAddress}`);
-      }
+          result = await tokensDb.find({ passphrase: passphrase }).toArray();
+          if (result && result.length > 0) {
+            while (
+              result.map((token: any) => token.passphrase).includes(passphrase)
+            ) {
+              selectedNoun = NOUNS[Math.floor(Math.random() * NOUNS.length)];
+              selectedAdjective =
+                ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+              passphrase = `${selectedAdjective} ${selectedNoun}`;
+            }
+          }
 
-      s.tokenCapture = initialState.tokenCapture;
+          const name =
+            s.tokenCapture.fields.name ||
+            process.env.DEFAULT_TOKEN_NAME ||
+            "Default Token Name";
+          const ticker =
+            s.tokenCapture.fields.symbol ||
+            process.env.DEFAULT_TOKEN_TICKER ||
+            "DEFAULTTOKENTICKER";
+          const totalSupply =
+            s.tokenCapture.fields.totalSupply ||
+            process.env.DEFAULT_INITIAL_SUPPLY ||
+            "1000000000";
 
-      /*
-      s.tokenCapture.fields.name = process.env.DEFAULT_TOKEN_NAME,
-      s.tokenCapture.fields.ticker = process.env.DEFAULT_TOKEN_TICKER,
-      s.tokenCapture.fields.logo = process.env.DEFAULT_TOKEN_LOGO,
-      s.tokenCapture.fields.primaryColor = process.env.DEFAULT_GRADIENT_START,
-      s.tokenCapture.fields.secondaryColor = process.env.DEFAULT_GRADIENT_END,
-      s.tokenCapture.fields.description = process.env.DEFAULT_TOKEN_DESCRIPTION,
-      s.tokenCapture.fields.totalSupply = process.env.DEFAULT_INITIAL_SUPPLY,                    
-       */
+          const details = {
+            tokenName: name,
+            tokenTicker: ticker,
+            imageURL: s.tokenCapture.fields.logo,
+            gradientStart: s.tokenCapture.fields.primaryColor,
+            gradientEnd: s.tokenCapture.fields.secondaryColor,
+            textColor: getTextColor(
+              s.tokenCapture.fields.primaryColor,
+              s.tokenCapture.fields.secondaryColor
+            ),
+            description: s.tokenCapture.fields.description,
+            contractAddress: contractAddress,
+            initialSupply: totalSupply,
+            userAddress: userAddress,
+            txHash: c.transactionId,
+            chainId: process.env.CHAIN_ID,
+            passphrase: passphrase,
+          };
+          result = await tokensDb.insertOne(details);
 
-      s.latestToken = { address: contractAddress };
+          if (!result.insertedId) {
+            console.error("row details", details);
+            throw new Error(
+              `failed to insert row for contract ${contractAddress}`
+            );
+          }
+        }
+
+        s.tokenCapture = initialState.tokenCapture;
+
+        s.latestToken = { address: contractAddress };
+      });
+    } catch (error) {
+      console.error(error);
+      return somethingWentWrong(c);
+    }
+
+    if (state.latestToken === undefined) {
+      return somethingWentWrong(c);
+    }
+
+    return c.res({
+      image: TextCard({
+        ui,
+        title: "Token created!",
+        description: `contract available at ${state.latestToken.address}`,
+      }),
+      intents: [
+        <Button action="/">Home</Button>,
+        <Button action="/launch">Launch</Button>,
+        // TODO: dynamically configure ether scan URL based on chain
+        <Button.Link
+          href={`https://${
+            process.env.CHAIN_ID == "84532" ? "sepolia." : ""
+          }.org/token/${state.latestToken.address}`}
+        >
+          View On-Chain
+        </Button.Link>,
+      ],
     });
-  } catch (error) {
-    console.error(error);
-    return somethingWentWrong(c);
+  } finally {
+    if (dbClient) {
+      await dbClient.close();
+    }
   }
-
-  if (state.latestToken === undefined) {
-    return somethingWentWrong(c);
-  }
-
-  return c.res({
-    image: TextCard({
-      ui,
-      title: "Token created!",
-      description: `contract available at ${state.latestToken.address}`,
-    }),
-    intents: [
-      <Button action="/">Home</Button>,
-      <Button action="/launch">Launch</Button>,
-      // TODO: dynamically configure ether scan URL based on chain
-      <Button.Link
-        href={`https://${
-          process.env.CHAIN_ID == "84532" ? "sepolia." : ""
-        }.org/token/${state.latestToken.address}`}
-      >
-        View On-Chain
-      </Button.Link>,
-    ],
-  });
 });
 
 app.frame("/launch", async (c) => {
@@ -623,7 +620,7 @@ app.frame("/viewSale", async (c) => {
   const ui = getUI();
   const { Box, Text } = ui;
 
-  await delay(5000)
+  await delay(5000);
 
   const response = await axios.get(
     `https://api${
@@ -641,7 +638,11 @@ app.frame("/viewSale", async (c) => {
   // TODO: check if the address of the owner matches the owner of the latest token
   // TODO: store transactionId & sale contract address with upsert
 
-  const dbClient = new MongoClient(process.env.MONGO_URI || "", {
+  if (process.env.MONGO_URI === undefined) {
+    throw Error("missing MONGO_URI");
+  }
+
+  const dbClient = new MongoClient(process.env.MONGO_URI, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,
@@ -649,60 +650,57 @@ app.frame("/viewSale", async (c) => {
     },
   });
   await dbClient.connect();
-  const salesDb = dbClient.db(process.env.MONGO_DB_NAME).collection("sales");
-  let result: any = await salesDb
-    .find({ contractAddress: truncatedAddress })
-    .toArray();
 
-  // should we do this or just do an upsert? because the user could
-  // reload the page when on the /viewSale route and we should at
-  // least make this route non-destructive
-  if (result && result.length > 0) {
-    throw new Error(
-      `contract already registered: ${truncatedAddress} chain=${process.env.CHAIN_ID}`
-    );
+  try {
+    const salesDb = dbClient.db(process.env.MONGO_DB_NAME).collection("sales");
+    let result: any = await salesDb
+      .findOne({ contractAddress: truncatedAddress });
+
+    if (result == null) {
+      await salesDb.insertOne({
+        contractAddress: truncatedAddress.toLowerCase(),
+        chainId: process.env.CHAIN_ID,
+        transactionId: c.transactionId?.toLowerCase(),
+        saleCapture: c.previousState.saleCapture,
+      });
+    }
+
+    return c.res({
+      image: TextCard({
+        ui,
+        title: "Your sale is live!",
+        description: "",
+        addendum: (
+          <>
+            <Box flexDirection="column" gap="4" grow paddingTop="32">
+              <Text size="12" wrap="balance">
+                transaction hash: {c.transactionId}
+              </Text>
+              <Text size="12" wrap="balance">
+                address: {truncatedAddress}
+              </Text>
+            </Box>
+          </>
+        ),
+      }),
+      intents: [
+        <Button.Link
+          href={`${process.env.NEXT_PUBLIC_SITE_URL}/sales/${truncatedAddress}/announce`}
+        >
+          Open Announcement Portal
+        </Button.Link>,
+        <Button.Link
+          href={`https://${
+            process.env.CHAIN_ID == "84532" ? "sepolia." : ""
+          }basescan.org/address/${truncatedAddress}`}
+        >
+          View On-Chain
+        </Button.Link>,
+      ],
+    });
+  } finally {
+    await dbClient.close();
   }
-
-  await salesDb.insertOne({
-    contractAddress: truncatedAddress.toLowerCase(),
-    chainId: process.env.CHAIN_ID,
-    transactionId: c.transactionId?.toLowerCase(),
-    saleCapture: c.previousState.saleCapture,
-  });
-
-  return c.res({
-    image: TextCard({
-      ui,
-      title: "Your sale is live!",
-      description: "",
-      addendum: (
-        <>
-          <Box flexDirection="column" gap="4" grow paddingTop="32">
-            <Text size="12" wrap="balance">
-              transaction hash: {c.transactionId}
-            </Text>
-            <Text size="12" wrap="balance">
-              address: {truncatedAddress}
-            </Text>
-          </Box>
-        </>
-      ),
-    }),
-    intents: [
-      <Button.Link
-        href={`${process.env.NEXT_PUBLIC_SITE_URL}/announce/${truncatedAddress}`}
-      >
-        Open Announcement Portal
-      </Button.Link>,
-      <Button.Link
-        href={`https://${
-          process.env.CHAIN_ID == "84532" ? "sepolia." : ""
-        }basescan.org/address/${truncatedAddress}`}
-      >
-        View On-Chain
-      </Button.Link>,
-    ],
-  });
 });
 
 const somethingWentWrong = (c: FrameContext<{ State: State }>) => {
