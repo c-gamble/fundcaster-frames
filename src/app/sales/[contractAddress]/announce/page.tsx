@@ -18,7 +18,7 @@ export async function Page({
   });
   await dbClient.connect();
   const salesDb = dbClient.db(process.env.MONGO_DB_NAME).collection("sales");
-  console.log(JSON.stringify(params));
+
   let result: any = await salesDb.findOne({
     contractAddress: params.contractAddress,
   });
