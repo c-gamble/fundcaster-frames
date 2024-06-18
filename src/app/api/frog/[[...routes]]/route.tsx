@@ -635,7 +635,6 @@ app.frame("/viewSale", async (c) => {
 
   const [saleEvent] = response.data.result.logs;
   const [, , saleAddress] = saleEvent.topics;
-  console.log(saleAddress);
   const truncatedAddress = `0x${saleAddress.slice(26)}`;
 
   // TODO: pull sale owner address from transaction ID
