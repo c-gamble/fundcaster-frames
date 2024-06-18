@@ -623,6 +623,8 @@ app.frame("/viewSale", async (c) => {
   const ui = getUI();
   const { Box, Text } = ui;
 
+  await delay(5000)
+
   const response = await axios.get(
     `https://api${
       process.env.CHAIN_ID == "84532" ? "-sepolia" : ""
